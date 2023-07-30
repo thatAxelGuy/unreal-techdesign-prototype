@@ -11,6 +11,10 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
+	if(GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Cyan, FString("OnScreen Message from CPP"));
+	}
 	
 }
 
