@@ -2,6 +2,7 @@
 
 
 #include "Items/Item.h"
+#include "UdemyProject/DebugMacros.h"
 
 AItem::AItem()
 {
@@ -11,10 +12,18 @@ AItem::AItem()
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Cyan, FString("OnScreen Message from CPP"));
-	}
+	
+	FVector Location = GetActorLocation();
+	FVector Forward = GetActorForwardVector();
+	FVector Right = GetActorRightVector();
+	FVector Up = GetActorUpVector();
+	float length = 100.f;
+
+	/*DRAW_SPHERE(Location, FColor::Cyan)
+	DRAW_VECTOR(Location, Location + Forward * -100.f)
+	DRAW_ARROW(Location, Location + Forward * 200.f) */
+
+	DRAW_3D_GIZMO(Location, Forward, Right, Up, length);
 	
 }
 
