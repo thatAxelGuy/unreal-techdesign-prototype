@@ -13,23 +13,24 @@ void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	FVector Location = GetActorLocation();
-	FVector Forward = GetActorForwardVector();
-	FVector Right = GetActorRightVector();
-	FVector Up = GetActorUpVector();
-	float length = 100.f;
-
-	/*DRAW_SPHERE(Location, FColor::Cyan)
-	DRAW_VECTOR(Location, Location + Forward * -100.f)
-	DRAW_ARROW(Location, Location + Forward * 200.f) */
-
-	DRAW_3D_GIZMO(Location, Forward, Right, Up, length);
-	
 }
 
+float AItem::TransformedSin()
+{
+    return Amplitude * FMath::Sin(RunningTime * TimeConstant);
+}
+
+float AItem::TransformedCos()
+{
+    return Amplitude * FMath::Cos(RunningTime * TimeConstant);
+}
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	RunningTime += DeltaTime;
+
+	DRAW_3D_GIZMO(GetActorLocation(), GetActorForwardVector(), GetActorRightVector(), GetActorUpVector(), 100.f);
 
 }
 
