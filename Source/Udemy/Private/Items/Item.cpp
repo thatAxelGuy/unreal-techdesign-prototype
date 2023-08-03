@@ -32,5 +32,8 @@ void AItem::Tick(float DeltaTime)
 
 	DRAW_3D_GIZMO(GetActorLocation(), GetActorForwardVector(), GetActorRightVector(), GetActorUpVector(), 100.f);
 
+	FVector AvgVector = Avg<FVector>(GetActorLocation(), FVector::Zero());
+	DRAW_POINT_SingleFrame(AvgVector);
+
 }
 
