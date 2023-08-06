@@ -7,6 +7,8 @@
 AItem::AItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
+	RootComponent = ItemMesh;
 }
 
 void AItem::BeginPlay()
@@ -29,11 +31,6 @@ void AItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	RunningTime += DeltaTime;
-
-	DRAW_3D_GIZMO(GetActorLocation(), GetActorForwardVector(), GetActorRightVector(), GetActorUpVector(), 100.f);
-
-	FVector AvgVector = Avg<FVector>(GetActorLocation(), FVector::Zero());
-	DRAW_POINT_SingleFrame(AvgVector);
 
 }
 
