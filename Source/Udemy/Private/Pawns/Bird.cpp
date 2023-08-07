@@ -6,6 +6,9 @@
 ABird::ABird() 
 {
 	 PrimaryActorTick.bCanEverTick = true;
+
+	 Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
+	 RootComponent = Capsule;
 }
 
 void ABird::BeginPlay()
