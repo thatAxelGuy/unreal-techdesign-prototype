@@ -2,13 +2,24 @@
 
 
 #include "Pawns/Bird.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 ABird::ABird() 
 {
 	 PrimaryActorTick.bCanEverTick = true;
 
 	 Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
-	 RootComponent = Capsule;
+	 Capsule->SetCapsuleHalfHeight(20.f);
+	 Capsule->SetCapsuleRadius(15.f);
+	 SetRootComponent(Capsule);
+
+	 BirdMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BirdMesh"));
+	 BirdMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	 BirdMesh->SetRelativeRotation(RootComponent->GetRelativeRotation());
+
+	 AutoPossessPlayer = EAutoReceiveInput::Player0;
+	
 }
 
 void ABird::BeginPlay()
