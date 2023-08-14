@@ -8,6 +8,8 @@
 #include "InputMappingContext.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 
 ABird::ABird() 
@@ -20,8 +22,15 @@ ABird::ABird()
 	 SetRootComponent(Capsule);
 
 	 BirdMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BirdMesh"));
-	 BirdMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
-	 BirdMesh->SetRelativeRotation(RootComponent->GetRelativeRotation());
+	 BirdMesh->SetupAttachment(GetRootComponent());
+
+	 SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	 SpringArm->SetupAttachment(GetRootComponent());
+	 SpringArm->TargetArmLength = 300.f;
+
+	 Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	 Camera->SetupAttachment(SpringArm);
+	 
 
 	 AutoPossessPlayer = EAutoReceiveInput::Player0;
 	
