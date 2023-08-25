@@ -11,6 +11,7 @@ class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
+class UGroomComponent;
 
 UCLASS()
 class UDEMY_API ASlashCharacter : public ACharacter
@@ -43,5 +44,14 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere)
+	UGroomComponent* Hair;
+
+	UPROPERTY(VisibleAnywhere)
+	UGroomComponent* Eyebrows;
+
+	UPROPERTY(VisibleAnywhere)
+	USkeletalMeshComponent* SkeletalHairMesh;
 
 };
