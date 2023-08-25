@@ -66,7 +66,7 @@ void ABird::Move(const FInputActionValue &Value)
 
 void ABird::Look(const FInputActionValue &Value)
 {
-	const FVector2D LookAxisValue = Value.Get<FVector2d>();
+	const FVector2D LookAxisValue = Value.Get<FVector2D>();
 	if(GetController())
 	{
 		AddControllerYawInput(LookAxisValue.X);
