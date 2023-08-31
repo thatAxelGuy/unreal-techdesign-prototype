@@ -35,8 +35,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* EKeyAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* DodgeAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* AttackAction;
+
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void EKeyPressed();
+	void Dodge();
+	void Attack();
 
 private:
 	UPROPERTY(VisibleAnywhere)
