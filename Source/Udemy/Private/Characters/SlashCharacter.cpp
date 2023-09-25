@@ -8,6 +8,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GroomComponent.h"
+#include "Items/Item.h"
+#include "Items/Weapons/Weapon.h"
 
 // Sets default values
 ASlashCharacter::ASlashCharacter()
@@ -84,10 +86,17 @@ void ASlashCharacter::Look(const FInputActionValue &Value)
 	}
 }
 
-void ASlashCharacter::EKeyPressed(){};
-void ASlashCharacter::Dodge(){};
-void ASlashCharacter::Attack(){};
+void ASlashCharacter::EKeyPressed()
+{
+	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
+	if(OverlappingWeapon)
+	{
+		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
+	}
+}
 
+void ASlashCharacter::Dodge(){}
+void ASlashCharacter::Attack(){}
 
 void ASlashCharacter::Tick(float DeltaTime)
 {

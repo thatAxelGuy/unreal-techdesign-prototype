@@ -12,6 +12,7 @@ class UInputAction;
 class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
+class AItem;
 
 UCLASS()
 class UDEMY_API ASlashCharacter : public ACharacter
@@ -71,4 +72,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleInstanceOnly)
+	AItem* OverlappingItem;
+
+public:
+	FORCEINLINE void SetOverlappingItem(AItem* Item){OverlappingItem = Item;}
+	
 };
