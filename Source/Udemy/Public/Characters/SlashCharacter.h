@@ -53,20 +53,22 @@ protected:
 	void Dodge();
 	void Attack();
 
+	//Hair Groom Assets
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UGroomComponent* Hair;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UGroomComponent* Eyebrows;
+	
+	//Skeletal Hair Mesh
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* SkeletalHairMesh;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* Camera;
-
-	UPROPERTY(VisibleAnywhere)
-	UGroomComponent* Hair;
-
-	UPROPERTY(VisibleAnywhere)
-	UGroomComponent* Eyebrows;
-
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* SkeletalHairMesh;
-
 };
