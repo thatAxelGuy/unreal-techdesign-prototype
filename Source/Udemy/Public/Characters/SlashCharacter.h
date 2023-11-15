@@ -49,11 +49,20 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* AttackAction;
 
+	/** 
+	 * Callbacks for Input
+	*/
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed();
 	void Dodge();
 	void Attack();
+
+	/**
+	 * Play Montage Functions 
+	 */
+
+	void PlayAttackMontage();
 
 	//Hair Groom Assets
 
@@ -69,6 +78,7 @@ protected:
 
 private:
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArm;
