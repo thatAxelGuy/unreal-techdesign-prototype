@@ -8,6 +8,12 @@
 
 class USphereComponent;
 
+enum class EItemState : uint8
+{
+	EIS_Hovering,
+	EIS_Equipped
+};
+
 UCLASS()
 class UDEMY_API AItem : public AActor
 {
@@ -20,13 +26,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sin Parameters")
-	float Amplitude = 0.25f;
+	float Amplitude = 1.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sin Parameters")
-	float TimeConstant = 0.5f;
+	float TimeConstant = 2.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rotation Parameters")
-	float RotationSpeed = 10.f;
+	float RotationSpeed = 50.f;
 
 	UFUNCTION(BlueprintPure)
 	float TransformedSin();
@@ -45,6 +51,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* ItemMesh;
+
+	EItemState ItemState = EItemState::EIS_Hovering;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))

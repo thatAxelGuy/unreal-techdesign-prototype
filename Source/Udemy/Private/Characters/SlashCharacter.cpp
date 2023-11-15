@@ -35,7 +35,7 @@ ASlashCharacter::ASlashCharacter()
 	Hair->SetupAttachment(GetMesh());
 	Hair->AttachmentName = FString("head");
 
-	Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));	
+	Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));
 	Eyebrows->SetupAttachment(GetMesh());
 	Eyebrows->AttachmentName = FString("head");
 
@@ -47,25 +47,23 @@ void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	if (APlayerController *PlayerController = Cast<APlayerController>(GetController()))
 	{
-		if(UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem *Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-			if(!SlashContext.IsNull())
+			if (!SlashContext.IsNull())
 			{
 				Subsystem->AddMappingContext(SlashContext.LoadSynchronous(), 0);
 			}
-
 		}
-	} 
-	
+	}
 }
 
-void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASlashCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent *EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
@@ -74,28 +72,26 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
 	}
-
 }
 
 void ASlashCharacter::Move(const FInputActionValue &Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
-	//find which way is forward
+	// find which way is forward
 	const FRotator ControlRotation = GetControlRotation();
 	const FRotator YawRotation(0.f, ControlRotation.Yaw, 0.f);
-		
+
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	AddMovementInput(ForwardDirection, MovementVector.Y);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 	AddMovementInput(RightDirection, MovementVector.X);
-
 }
 
 void ASlashCharacter::Look(const FInputActionValue &Value)
 {
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-	if(GetController())
+	if (GetController())
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
@@ -104,30 +100,36 @@ void ASlashCharacter::Look(const FInputActionValue &Value)
 
 void ASlashCharacter::EKeyPressed()
 {
-	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
-	if(OverlappingWeapon)
+	AWeapon *OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
+	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"));
 		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 	}
 }
 
-void ASlashCharacter::Dodge(){}
+void ASlashCharacter::Dodge() {}
 
 void ASlashCharacter::Attack()
 {
-	if(ActionState == EActionState::EAS_Unoccupied)
+
+	if (CanAttack())
 	{
 		PlayAttackMontage();
 		ActionState = EActionState::EAS_Attacking;
 	}
-	
+}
+
+bool ASlashCharacter::CanAttack()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		   CharacterState != ECharacterState::ECS_Unequipped;
 }
 
 void ASlashCharacter::PlayAttackMontage()
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if(AnimInstance && AttackMontage)
+	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
 		const int32 Selection = FMath::RandRange(0, 1);
@@ -147,10 +149,12 @@ void ASlashCharacter::PlayAttackMontage()
 	}
 }
 
+void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-
-
-
