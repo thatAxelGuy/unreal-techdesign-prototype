@@ -76,6 +76,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 
 void ASlashCharacter::Move(const FInputActionValue &Value)
 {
+	if (ActionState == EActionState::EAS_Attacking) return;
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	// find which way is forward
