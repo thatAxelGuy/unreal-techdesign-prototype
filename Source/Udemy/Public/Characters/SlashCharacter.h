@@ -14,6 +14,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
 class AItem;
+class AWeapon;
 
 UCLASS()
 class UDEMY_API ASlashCharacter : public ACharacter
@@ -67,6 +68,11 @@ protected:
 	void AttackEnd();
 	bool CanAttack();
 
+	void PlayEquipMontage(FName SectionName);
+	bool CanDisarm();
+
+	bool CanArm();
+
 	//Hair Groom Assets
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -92,12 +98,18 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
+	
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	AWeapon* EquippedWeapon;
 
 	/**
 	 * Animation Montages
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* EquipMontage;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item){OverlappingItem = Item;}
