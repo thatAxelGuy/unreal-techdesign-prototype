@@ -39,7 +39,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::GetHit(const FVector& ImpactPoint)
 {
 	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);
-	PlayHitReactMontage(FName(TEXT("FromRight")));
+	PlayHitReactMontage(FName(TEXT("FromLeft")));
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName)
