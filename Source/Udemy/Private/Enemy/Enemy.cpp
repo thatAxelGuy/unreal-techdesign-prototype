@@ -20,7 +20,6 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AEnemy::Tick(float DeltaTime)
