@@ -49,9 +49,18 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* DodgeAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* SprintAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* AttackAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* AttackHorizontalAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* HeavyAttackAction;
 
 	/** 
 	 * Callbacks for Input
@@ -60,13 +69,16 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed();
 	void Dodge();
+	void Sprint();
 	void Attack();
+	void AttackHorizontal();
+	void HeavyAttack();
 
 	/**
 	 * Play Montage Functions 
 	 */
 
-	void PlayAttackMontage();
+	void PlayAttackMontage(int32 AttackTypeValue);
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 	bool CanAttack();

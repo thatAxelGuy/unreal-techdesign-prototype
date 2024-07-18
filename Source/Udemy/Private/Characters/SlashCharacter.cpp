@@ -70,8 +70,11 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump);
 		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASlashCharacter::Sprint);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+		EnhancedInputComponent->BindAction(AttackHorizontalAction, ETriggerEvent::Triggered, this, &ASlashCharacter::AttackHorizontal);
+		EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::HeavyAttack);
 	}
 }
 
@@ -137,12 +140,36 @@ void ASlashCharacter::EKeyPressed()
 
 void ASlashCharacter::Dodge() {}
 
+void ASlashCharacter::Sprint()
+{
+}
+
 void ASlashCharacter::Attack()
 {
-
+	const int32 AttackType = 0;
 	if (CanAttack())
 	{
-		PlayAttackMontage();
+		PlayAttackMontage(AttackType);
+		ActionState = EActionState::EAS_Attacking;
+	}
+}
+
+void ASlashCharacter::AttackHorizontal()
+{
+	const int32 AttackType = 1;
+	if (CanAttack())
+	{
+		PlayAttackMontage(AttackType);
+		ActionState = EActionState::EAS_Attacking;
+	}
+}
+
+void ASlashCharacter::HeavyAttack()
+{
+	const int32 AttackType = 2;
+	if (CanAttack())
+	{
+		PlayAttackMontage(AttackType);
 		ActionState = EActionState::EAS_Attacking;
 	}
 }
@@ -186,13 +213,14 @@ void ASlashCharacter::FinishEquipping()
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
-void ASlashCharacter::PlayAttackMontage()
+void ASlashCharacter::PlayAttackMontage(int32 AttackTypeValue)
 {
 	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && AttackMontage)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		const int32 Selection = FMath::RandRange(0, 1);
+		//const int32 Selection = FMath::RandRange(0, 1);
+		const int32 Selection = AttackTypeValue;
 		FName SectionName = FName();
 		switch (Selection)
 		{
@@ -201,6 +229,9 @@ void ASlashCharacter::PlayAttackMontage()
 			break;
 		case 1:
 			SectionName = FName("Attack2");
+			break;
+		case 2:
+			SectionName = FName("Attack3");
 			break;
 		default:
 			break;
