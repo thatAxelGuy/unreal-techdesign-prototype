@@ -29,11 +29,16 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UGeometryCollectionComponent* GeometryCollection;
 
+	UFUNCTION()
+	void HandleChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
+
+	void SpawnTreasure();
+	
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Breakable Properties")
 	TArray<TSubclassOf<class ATreasure>> TreasureClasses;
 
 	bool bBroken = false;
-
 };
