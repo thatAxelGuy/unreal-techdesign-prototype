@@ -9,6 +9,7 @@
 
 class UAnimMontage;
 class UAttributeComponent;
+class UWidgetComponent;
 
 UCLASS()
 class UDEMY_API AEnemy : public ACharacter, public IHitInterface
@@ -26,8 +27,11 @@ public:
 	void DirectionalHitReact(const FVector& ImpactPoint);
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Attributes")
+	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
+
+	UPROPERTY(VisibleAnywhere)
+	UWidgetComponent* HealthBarWidget;
 	
 	/**
 	 * Animation Montages
