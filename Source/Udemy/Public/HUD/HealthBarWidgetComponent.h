@@ -13,5 +13,4 @@ UCLASS()
 class UDEMY_API UHealthBarWidgetComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
-	
 };
