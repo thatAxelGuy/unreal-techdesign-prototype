@@ -16,4 +16,7 @@ class UDEMY_API UHealthBar : public UUserWidget
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* DamageBar;
 };

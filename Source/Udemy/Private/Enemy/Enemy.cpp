@@ -29,6 +29,7 @@ void AEnemy::BeginPlay()
 	if(HealthBarWidget)
 	{
 		HealthBarWidget->SetHealthPercent(1.f);
+		HealthBarWidget->SetDamagePercent(1.f);
 	}
 }
 
