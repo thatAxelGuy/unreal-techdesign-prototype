@@ -35,9 +35,12 @@ void AEnemy::BeginPlay()
 
 void AEnemy::Die()
 {
+	if (!bIsAlive) return;
+	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
+		bIsAlive = false;
 		AnimInstance->Montage_Play(DeathMontage);
 		const int32 Selection = FMath::RandRange(0, 4);
 		FName SectionName;
@@ -45,23 +48,28 @@ void AEnemy::Die()
 		{
 		case 0:
 			SectionName = FName("Death_01");
+			DeathPose = EDeathPose::EDP_Death1;
 			break;
 		case 1:
 			SectionName = FName("Death_02");
+			DeathPose = EDeathPose::EDP_Death2;
 			break;
 		case 2:
 			SectionName = FName("Death_03");
+			DeathPose = EDeathPose::EDP_Death3;
 			break;
 		case 3:
 			SectionName = FName("Death_04");
+			DeathPose = EDeathPose::EDP_Death4;
 			break;
 		case 4:
 			SectionName = FName("Death_05");
+			DeathPose = EDeathPose::EDP_Death5;
 			break;
 		default:
 			break;
 		}
-		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
 	}
 }
 
