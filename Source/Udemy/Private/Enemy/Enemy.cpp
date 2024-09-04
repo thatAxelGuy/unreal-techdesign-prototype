@@ -28,15 +28,17 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	if(HealthBarWidget)
 	{
-		HealthBarWidget->SetHealthPercent(1.f);
-		HealthBarWidget->SetDamagePercent(1.f);
+		float DefaultHealthPercentage = Attributes->GetHealthPercent();
+		HealthBarWidget->SetHealthPercent(DefaultHealthPercentage);
+		HealthBarWidget->SetDamagePercent(DefaultHealthPercentage);
+		HealthBarWidget->SetVisibility(false);
 	}
 }
 
 void AEnemy::Die()
 {
 	if (!bIsAlive) return;
-	
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && DeathMontage)
 	{
@@ -71,11 +73,32 @@ void AEnemy::Die()
 		}
 		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
 	}
+
+	// Start HideHealthBar Timer
+	StartHideHealthbarTimer();
+
+	// Disable Collision on Death
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// Delete Enemy from Scene
+	SetLifeSpan(10.f);
+
 }
 
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (CombatTarget)
+	{
+		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Size();
+		if (DistanceToTarget > CombatRadius)
+		{
+			// Reset Combat Target
+			CombatTarget = nullptr;
+			StartHideHealthbarTimer();
+		}
+	}
 
 }
 
@@ -88,9 +111,14 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	//DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);
+	if (HealthBarWidget && bIsAlive)
+	{
+		HealthBarWidget->SetVisibility(true);
+	}
 	if (Attributes && Attributes->IsAlive())
 	{
 		DirectionalHitReact(ImpactPoint);
+		
 	}
 	else
 	{
@@ -178,7 +206,27 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 		Attributes->ReceiveDamage(DamageAmount);
 		HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
 	}
+	CombatTarget = EventInstigator->GetPawn();
 	return DamageAmount;
+}
+// Timer after which function to hide healthbar is called
+void AEnemy::StartHideHealthbarTimer()
+{
+	// Clear any existing timer to reset delay
+	GetWorld()->GetTimerManager().ClearTimer(DelayedHealthbarDeletionTimerHandle);
+
+	// Set a new timer to hide healthbar after the delay
+	GetWorld()->GetTimerManager().SetTimer(DelayedHealthbarDeletionTimerHandle, this, &AEnemy::HideHealthBarAfterDelay, 2.f, false);
+}
+
+// Function to hide healthbar called by timer
+void AEnemy::HideHealthBarAfterDelay()
+{
+
+	if (HealthBarWidget)
+	{
+		HealthBarWidget->SetVisibility(false);
+	}
 }
 
 void AEnemy::PlayHitReactMontage(const FName& SectionName)

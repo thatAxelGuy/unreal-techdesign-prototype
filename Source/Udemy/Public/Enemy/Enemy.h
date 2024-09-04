@@ -26,6 +26,10 @@ public:
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	// Delayed Healthbar Deletion
+	void StartHideHealthbarTimer();
+	void HideHealthBarAfterDelay();
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
@@ -48,7 +52,17 @@ private:
 	UPROPERTY(EditAnywhere, Category = VisualEffects)
 	UParticleSystem* HitParticles;
 
+	UPROPERTY()
+	AActor* CombatTarget;
+
+	UPROPERTY(EditAnywhere)
+	double CombatRadius = 500.f;
+
 	bool bIsAlive = true;
+
+	FTimerHandle DelayedHealthbarDeletionTimerHandle;
+
+	
 	
 
 protected:

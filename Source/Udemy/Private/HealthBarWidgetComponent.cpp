@@ -80,5 +80,3 @@ void UHealthBarWidgetComponent::SetDamagePercent(float Percent)
 		HealthBarWidget->DamageBar->SetPercent(Percent);
 	}
 }
-
-
