@@ -62,6 +62,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* HeavyAttackAction;
 
+	// Boolean to track Character Stance
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
+	bool bIsTwoHandedStance = false;
+
 	/** 
 	 * Callbacks for Input
 	*/
@@ -135,6 +139,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
+
+	void ToggleStance();
+
+	void SetCharacterStateForEquippedWeapon();
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item){OverlappingItem = Item;}
