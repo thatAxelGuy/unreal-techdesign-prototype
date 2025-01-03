@@ -145,10 +145,19 @@ void ASlashCharacter::EKeyPressed()
 	}
 }
 
-void ASlashCharacter::Dodge() { ToggleStance(); }
+void ASlashCharacter::Dodge() { ToggleTwoHandedStance(); }
 
 void ASlashCharacter::Sprint()
 {
+	if (CharacterState == ECharacterState::ECS_Unequipped || ActionState != EActionState::EAS_Unoccupied)  return;
+	if(EquippedWeapon)
+	{
+		EquippedWeapon->DropWeapon();
+		EquippedWeapon = nullptr;
+
+	}
+	
+	SetCharacterStateForEquippedWeapon();
 }
 
 void ASlashCharacter::Attack()
@@ -220,7 +229,7 @@ void ASlashCharacter::FinishEquipping()
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
-void ASlashCharacter::ToggleStance()
+void ASlashCharacter::ToggleTwoHandedStance()
 {
 	if (CharacterState == ECharacterState::ECS_Unequipped) return;
 

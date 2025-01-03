@@ -140,7 +140,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
 
-	void ToggleStance();
+	void ToggleTwoHandedStance();
 
 	void SetCharacterStateForEquippedWeapon();
 

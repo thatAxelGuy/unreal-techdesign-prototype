@@ -57,6 +57,26 @@ void AWeapon::Equip(USceneComponent *InParent, FName InSocketName, AActor* NewOw
     }
 }
 
+void AWeapon::DropWeapon()
+{
+    DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+    SetOwner(nullptr);
+    SetInstigator(nullptr);
+    ItemState = EItemState::EIS_Hovering;
+
+    SetActorRotation(FRotator::ZeroRotator);
+
+    if (Sphere)
+    {
+        Sphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    }
+
+    if (EmbersEffect)
+    {
+        EmbersEffect->Activate();
+    }
+}
+
 void AWeapon::AttachMeshToSocket(USceneComponent *InParent, const FName &InSocketName)
 {
     FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, true);

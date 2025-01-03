@@ -20,6 +20,7 @@ public:
     AWeapon();
     void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
     void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
+    void DropWeapon();
 
     TArray<AActor*>ActorsToIgnore;
 protected:
