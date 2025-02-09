@@ -118,6 +118,11 @@ void ASlashCharacter::EKeyPressed()
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
 		OverlappingItem = nullptr;
+		// Drop weapon if one is already equipped
+		if (EquippedWeapon){
+			EquippedWeapon->DropWeapon();
+		}
+		
 		EquippedWeapon = OverlappingWeapon;
 		// Set character state based on the stance
 		SetCharacterStateForEquippedWeapon();
@@ -235,6 +240,8 @@ void ASlashCharacter::ToggleTwoHandedStance()
 
 	// Toggle between one-handed and two-handed stance
 	bIsTwoHandedStance = !bIsTwoHandedStance;
+
+	EquippedWeapon->SetWeaponStanceTwoHanded(bIsTwoHandedStance);
 
 	// Update the character state for the equipped weapon
 	SetCharacterStateForEquippedWeapon();

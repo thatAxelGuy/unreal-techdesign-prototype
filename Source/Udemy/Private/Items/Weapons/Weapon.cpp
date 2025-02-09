@@ -9,6 +9,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HitInterface.h"
 #include "NiagaraComponent.h"
+#include "Data/WeaponData.h"
 
 AWeapon::AWeapon()
 {
@@ -29,6 +30,7 @@ void AWeapon::BeginPlay()
     Super::BeginPlay();
 
     WeaponBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
+    InitializeFromDataTable();
 }
 
 void AWeapon::Equip(USceneComponent *InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
@@ -77,6 +79,29 @@ void AWeapon::DropWeapon()
     }
 }
 
+void AWeapon::InitializeFromDataTable()
+{
+    if (!WeaponDataTable) return;
+
+    static const FString ContextString(TEXT("Weapon Data"));
+    FWeaponData* WeaponData = WeaponDataTable->FindRow<FWeaponData>(WeaponID, ContextString);
+    UE_LOG(LogTemp, Log, TEXT("Weapon Data Accessed"));
+    if (WeaponData)
+    {
+        Damage = WeaponData->BaseDamage;
+        DamageModifierTwoHanded = WeaponData->TwoHandedDamageModifier;
+        /*StrengthScaling = ScalingGrades[WeaponData->StrengthGrade];
+        AgilityScaling = ScalingGrades[WeaponData->AgilityGrade];*/
+
+        UE_LOG(LogTemp, Log, TEXT("Weapon Initialized: %s"), *WeaponData->WeaponName.ToString());
+    }
+}
+
+void AWeapon::SetWeaponStanceTwoHanded(bool isTwoHanded)
+{
+    bIsWeaponHeldTwoHanded = isTwoHanded;
+}
+
 void AWeapon::AttachMeshToSocket(USceneComponent *InParent, const FName &InSocketName)
 {
     FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, true);
@@ -118,11 +143,12 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent *OverlappedComponent, AActor *Oth
         BoxHit,
         true
     );
+
     if(BoxHit.GetActor())
     {
         UGameplayStatics::ApplyDamage(
             BoxHit.GetActor(),
-            Damage,
+            CalculateDamage(),
             GetInstigator()->GetController(),
             this,
             UDamageType::StaticClass()
@@ -138,6 +164,19 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent *OverlappedComponent, AActor *Oth
         CreateFields(BoxHit.ImpactPoint);
 
        
+    }
+    
+}
+
+float AWeapon::CalculateDamage()
+{
+    if (bIsWeaponHeldTwoHanded)
+    {
+        return Damage * DamageModifierTwoHanded;
+    }
+    else 
+    {
+        return Damage;
     }
     
 }

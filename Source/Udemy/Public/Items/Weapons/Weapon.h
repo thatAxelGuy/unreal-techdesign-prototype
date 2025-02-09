@@ -21,6 +21,9 @@ public:
     void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
     void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
     void DropWeapon();
+    void InitializeFromDataTable();
+    void SetWeaponStanceTwoHanded(bool isTwoHanded);
+
 
     TArray<AActor*>ActorsToIgnore;
 protected:
@@ -49,6 +52,18 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Weapon Properties")
     float Damage = 20.f;
+
+    UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+    float DamageModifierTwoHanded = 1.f;
+
+    UPROPERTY(EditAnywhere, Category = "Data")
+    UDataTable* WeaponDataTable;
+
+    UPROPERTY(EditAnywhere, Category = "Data")
+    FName WeaponID;
+
+    bool bIsWeaponHeldTwoHanded = false;
+    float CalculateDamage();
 
 
 public:
