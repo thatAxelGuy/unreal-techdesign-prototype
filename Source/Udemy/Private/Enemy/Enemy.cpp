@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/AttributeComponent.h"
 #include "HUD/HealthBarWidgetComponent.h"
+#include "AIController.h"
+#include "Navigation/PathFollowingComponent.h"
+
 
 AEnemy::AEnemy()
 {
@@ -35,6 +38,22 @@ void AEnemy::BeginPlay()
 		HealthBarWidget->SetHealthPercent(DefaultHealthPercentage);
 		HealthBarWidget->SetDamagePercent(DefaultHealthPercentage);
 		HealthBarWidget->SetVisibility(false);
+	}
+
+	EnemyController = Cast<AAIController>(GetController());
+	if (EnemyController && PatrolTarget)
+	{	
+		FAIMoveRequest MoveRequest;
+		MoveRequest.SetGoalActor(PatrolTarget);
+		MoveRequest.SetAcceptanceRadius(15.f);
+		FNavPathSharedPtr NavPath;
+		EnemyController->MoveTo(MoveRequest, &NavPath);
+		TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
+		for (auto& Point : PathPoints)
+		{
+			const FVector& Location = Point.Location;
+			DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
+		}
 	}
 }
 
@@ -88,19 +107,59 @@ void AEnemy::Die()
 
 }
 
+bool AEnemy::InTargetRange(AActor* Target, double Radius)
+{
+	const double DistanceToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
+	DRAW_ARROW_SingleFrame(GetActorLocation(), Target->GetActorLocation());
+	return DistanceToTarget <= Radius;
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	if (CombatTarget)
 	{
-		const double DistanceToTarget = (CombatTarget->GetActorLocation() - GetActorLocation()).Size();
-		if (DistanceToTarget > CombatRadius)
+		if (!InTargetRange(CombatTarget, CombatRadius))
 		{
 			// Reset Combat Target
 			CombatTarget = nullptr;
 			StartHideHealthbarTimer();
 		}
+	}
+
+	if (PatrolTarget && InTargetRange(PatrolTarget, PatrolRadius) && PatrolTargets.Num() > 0 && EnemyController)
+	{
+		/* 
+		
+		TArray<AActor*> ValidTargets = PatrolTargets.FilterByPredicate(
+			[this](AActor* TargetActor)
+			{
+				return TargetActor != PatrolTarget;
+			});
+		*/
+
+		TArray<AActor*> ValidTargets;
+		for (AActor* Target : PatrolTargets)
+		{
+			if (Target != PatrolTarget)
+			{
+				ValidTargets.AddUnique(Target);
+			}
+
+		}
+		
+		if (ValidTargets.Num() > 0)
+		{
+			// Randomly select from the available patrol targets
+			PatrolTarget = ValidTargets[FMath::RandRange(0, ValidTargets.Num() - 1)];
+
+			FAIMoveRequest MoveRequest;
+			MoveRequest.SetGoalActor(PatrolTarget);
+			MoveRequest.SetAcceptanceRadius(15.f);
+			EnemyController->MoveTo(MoveRequest);
+		}
+		
 	}
 
 }
