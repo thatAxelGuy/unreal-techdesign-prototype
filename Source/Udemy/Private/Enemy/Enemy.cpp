@@ -153,12 +153,17 @@ void AEnemy::OnPawnSeen(APawn* SeenPawn)
 	if (EnemyState == EEnemyState::EES_Chasing) return;
 	if (SeenPawn->ActorHasTag(FName("SlashCharacter")))
 	{
-		EnemyState = EEnemyState::EES_Chasing;
+		
 		GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
 		GetCharacterMovement()->MaxWalkSpeed = ChasingSpeed;
 		CombatTarget = SeenPawn;
-		MoveToTarget(CombatTarget);
-		UE_LOG(LogTemp, Warning, TEXT("Pawn Seen! - Commence Chase!"));
+		
+		if (EnemyState != EEnemyState::EEA_Attacking)
+		{
+			EnemyState = EEnemyState::EES_Chasing;
+			MoveToTarget(CombatTarget);
+			UE_LOG(LogTemp, Warning, TEXT("Pawn Seen! - Commence Chase!"));
+		}
 	}
 	
 }
@@ -193,9 +198,28 @@ void AEnemy::CheckCombatTarget()
 
 	if (!InTargetRange(CombatTarget, CombatRadius))
 	{
-		// Reset Combat Target
+		// Outside combat radius, lose interest
 		CombatTarget = nullptr;
 		StartHideHealthbarTimer();
+		EnemyState = EEnemyState::EES_Patrolling;
+		GetCharacterMovement()->MaxWalkSpeed = 125.f;
+		MoveToTarget(PatrolTarget);
+		UE_LOG(LogTemp, Warning, TEXT("Lose Interest!"))
+	}
+	else if (!InTargetRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Chasing)
+	{
+		// Outside Attack Range, chase character
+		EnemyState = EEnemyState::EES_Chasing;
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		MoveToTarget(CombatTarget);
+		UE_LOG(LogTemp, Warning, TEXT("Chase Player!"))
+	}
+	else if (InTargetRange(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EEA_Attacking)
+	{
+		// Inside AttackRange, Attack Character
+		EnemyState = EEnemyState::EEA_Attacking;
+		// TODO: ATTACK MONTAGE
+		UE_LOG(LogTemp, Warning, TEXT("Attack!"))
 	}
 }
 
@@ -304,8 +328,12 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 		HealthBarWidget->SetHealthPercent(Attributes->GetHealthPercent());
 	}
 	CombatTarget = EventInstigator->GetPawn();
+	EnemyState = EEnemyState::EES_Chasing; 
+	MoveToTarget(CombatTarget);
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	return DamageAmount;
 }
+
 // Timer after which function to hide healthbar is called
 void AEnemy::StartHideHealthbarTimer()
 {

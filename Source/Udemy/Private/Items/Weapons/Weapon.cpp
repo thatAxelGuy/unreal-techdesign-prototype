@@ -25,12 +25,37 @@ AWeapon::AWeapon()
     BoxTraceEnd->SetupAttachment(GetRootComponent());
 }
 
+void AWeapon::OnConstruction(const FTransform& Transform)
+{
+    Super::OnConstruction(Transform);
+    AdjustHeightAboveGround();
+}
+
+void AWeapon::AdjustHeightAboveGround()
+{
+    FVector Start = GetActorLocation();
+    FVector End = Start - FVector((0, 0, 10000)); // Downward Trace
+
+    FHitResult HitResult;
+    FCollisionQueryParams TraceParams;
+    TraceParams.AddIgnoredActor(this);
+
+    if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, TraceParams))
+    {
+        FVector NewLocation = GetActorLocation();
+        NewLocation.Z = HitResult.ImpactPoint.Z + HeightAboveGround;
+        SetActorLocation(NewLocation);
+    }
+}
+
 void AWeapon::BeginPlay()
 {
     Super::BeginPlay();
 
     WeaponBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
     InitializeFromDataTable();
+
+    AdjustHeightAboveGround();
 }
 
 void AWeapon::Equip(USceneComponent *InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
@@ -77,6 +102,8 @@ void AWeapon::DropWeapon()
     {
         EmbersEffect->Activate();
     }
+
+    AdjustHeightAboveGround();
 }
 
 void AWeapon::InitializeFromDataTable()
