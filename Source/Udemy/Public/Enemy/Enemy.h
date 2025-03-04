@@ -11,6 +11,7 @@
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarWidgetComponent;
+class UPawnSensingComponent;
 
 UCLASS()
 class UDEMY_API AEnemy : public ACharacter, public IHitInterface
@@ -21,25 +22,43 @@ public:
 	AEnemy();
 
 	virtual void Tick(float DeltaTime) override;
+	void CheckPatrolTarget();
+	void CheckCombatTarget();
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	// Delayed Healthbar Deletion
-	void StartHideHealthbarTimer();
-	void HideHealthBarAfterDelay();
+	
 
 private:
+
+/*
+==========================================
+	Components
+==========================================
+*/
+
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
 	UPROPERTY(VisibleAnywhere)
+	UPawnSensingComponent* PawnSensing;
+
+	UPROPERTY(VisibleAnywhere)
 	UHealthBarWidgetComponent* HealthBarWidget;
+
+	// Delayed Healthbar Deletion
+	FTimerHandle DelayedHealthbarDeletionTimerHandle;
+
+	void StartHideHealthbarTimer();
+	void HideHealthBarAfterDelay();
 	
-	/**
-	 * Animation Montages
-	 */
+/*
+==========================================
+	Animation Montages
+==========================================
+*/
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitReactMontage;
 
@@ -58,9 +77,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 500.f;
 
-	bool bIsAlive = true;
-
-	FTimerHandle DelayedHealthbarDeletionTimerHandle;
 
 /*
 ==========================================
@@ -69,6 +85,7 @@ private:
 */
 	UPROPERTY()
 	class AAIController* EnemyController;
+	
 	// Current Patrol Target
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	AActor* PatrolTarget;
@@ -78,6 +95,24 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	double PatrolRadius = 200.f;
+
+	FTimerHandle PatrolTimerHandle;
+
+	void PatrolTimerFinished();
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float WaitMin = 5.f;
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float WaitMax = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float ChasingSpeed = 300.f;
+
+	bool bIsAlive = true;
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+
 	
 
 protected:
@@ -85,11 +120,17 @@ protected:
 
 	void Die();
 	bool InTargetRange(AActor* Target, double Radius);
+	void MoveToTarget(AActor* Target);
+	AActor* ChoosePatrolTarget();
 
+	UFUNCTION()
+	void OnPawnSeen(APawn* SeenPawn);
 
-	/**
-	 * Play Montage Functions 
-	 */
+	/*
+	==========================================
+		Play Montage Functions
+	==========================================
+	*/
 
 	void PlayHitReactMontage(const FName& SectionName);
 

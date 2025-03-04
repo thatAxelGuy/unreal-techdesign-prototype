@@ -9,6 +9,7 @@
 #include "HUD/HealthBarWidgetComponent.h"
 #include "AIController.h"
 #include "Navigation/PathFollowingComponent.h"
+#include "Perception/PawnSensingComponent.h"
 
 
 AEnemy::AEnemy()
@@ -24,9 +25,18 @@ AEnemy::AEnemy()
 	Attributes = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attributes"));
 	HealthBarWidget = CreateDefaultSubobject<UHealthBarWidgetComponent>(TEXT("HealthBar"));
 	HealthBarWidget->SetupAttachment(GetRootComponent());
-
+	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationPitch, bUseControllerRotationYaw, bUseControllerRotationRoll = false;
+
+	PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
+	PawnSensing->SightRadius = 4000.f;
+	PawnSensing->SetPeripheralVisionAngle(45.f);
+}
+
+void AEnemy::PatrolTimerFinished()
+{
+	MoveToTarget(PatrolTarget);
 }
 
 void AEnemy::BeginPlay()
@@ -41,19 +51,11 @@ void AEnemy::BeginPlay()
 	}
 
 	EnemyController = Cast<AAIController>(GetController());
-	if (EnemyController && PatrolTarget)
-	{	
-		FAIMoveRequest MoveRequest;
-		MoveRequest.SetGoalActor(PatrolTarget);
-		MoveRequest.SetAcceptanceRadius(15.f);
-		FNavPathSharedPtr NavPath;
-		EnemyController->MoveTo(MoveRequest, &NavPath);
-		TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
-		for (auto& Point : PathPoints)
-		{
-			const FVector& Location = Point.Location;
-			DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
-		}
+	MoveToTarget(PatrolTarget);
+
+	if (PawnSensing)
+	{
+		PawnSensing->OnSeePawn.AddDynamic(this, &AEnemy::OnPawnSeen);
 	}
 }
 
@@ -109,59 +111,92 @@ void AEnemy::Die()
 
 bool AEnemy::InTargetRange(AActor* Target, double Radius)
 {
+	if (Target == nullptr) return false;
 	const double DistanceToTarget = (Target->GetActorLocation() - GetActorLocation()).Size();
-	DRAW_ARROW_SingleFrame(GetActorLocation(), Target->GetActorLocation());
+	//DRAW_ARROW_SingleFrame(GetActorLocation(), Target->GetActorLocation());
 	return DistanceToTarget <= Radius;
+}
+
+void AEnemy::MoveToTarget(AActor* Target)
+{
+	if (EnemyController == nullptr || Target == nullptr) return;
+	
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalActor(Target);
+	MoveRequest.SetAcceptanceRadius(15.f);
+	EnemyController->MoveTo(MoveRequest);
+}
+
+AActor* AEnemy::ChoosePatrolTarget()
+{
+	TArray<AActor*> ValidTargets;
+	for (AActor* Target : PatrolTargets)
+	{
+		if (Target != PatrolTarget)
+		{
+			ValidTargets.AddUnique(Target);
+		}
+	}
+
+	if (ValidTargets.Num() > 0)
+	{
+		// Randomly select from the available patrol targets
+		AActor* ChosenTarget = ValidTargets[FMath::RandRange(0, ValidTargets.Num() - 1)];
+		return ChosenTarget;
+
+	}
+	return nullptr;
+}
+
+void AEnemy::OnPawnSeen(APawn* SeenPawn)
+{
+	if (EnemyState == EEnemyState::EES_Chasing) return;
+	if (SeenPawn->ActorHasTag(FName("SlashCharacter")))
+	{
+		EnemyState = EEnemyState::EES_Chasing;
+		GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
+		GetCharacterMovement()->MaxWalkSpeed = ChasingSpeed;
+		CombatTarget = SeenPawn;
+		MoveToTarget(CombatTarget);
+		UE_LOG(LogTemp, Warning, TEXT("Pawn Seen! - Commence Chase!"));
+	}
+	
 }
 
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (CombatTarget)
+	if (EnemyState > EEnemyState::EES_Patrolling)
 	{
-		if (!InTargetRange(CombatTarget, CombatRadius))
-		{
-			// Reset Combat Target
-			CombatTarget = nullptr;
-			StartHideHealthbarTimer();
-		}
+		CheckCombatTarget();
 	}
-
-	if (PatrolTarget && InTargetRange(PatrolTarget, PatrolRadius) && PatrolTargets.Num() > 0 && EnemyController)
+	else
 	{
-		/* 
-		
-		TArray<AActor*> ValidTargets = PatrolTargets.FilterByPredicate(
-			[this](AActor* TargetActor)
-			{
-				return TargetActor != PatrolTarget;
-			});
-		*/
-
-		TArray<AActor*> ValidTargets;
-		for (AActor* Target : PatrolTargets)
-		{
-			if (Target != PatrolTarget)
-			{
-				ValidTargets.AddUnique(Target);
-			}
-
-		}
-		
-		if (ValidTargets.Num() > 0)
-		{
-			// Randomly select from the available patrol targets
-			PatrolTarget = ValidTargets[FMath::RandRange(0, ValidTargets.Num() - 1)];
-
-			FAIMoveRequest MoveRequest;
-			MoveRequest.SetGoalActor(PatrolTarget);
-			MoveRequest.SetAcceptanceRadius(15.f);
-			EnemyController->MoveTo(MoveRequest);
-		}
-		
+		CheckPatrolTarget();
 	}
+}
 
+void AEnemy::CheckPatrolTarget()
+{
+
+
+	if (InTargetRange(PatrolTarget, PatrolRadius))
+	{
+		PatrolTarget = ChoosePatrolTarget();
+		const float WaitTime = FMath::RandRange(WaitMin, WaitMax);
+		GetWorld()->GetTimerManager().SetTimer(PatrolTimerHandle, this, &AEnemy::PatrolTimerFinished, WaitTime);
+	}
+}
+
+void AEnemy::CheckCombatTarget()
+{
+
+	if (!InTargetRange(CombatTarget, CombatRadius))
+	{
+		// Reset Combat Target
+		CombatTarget = nullptr;
+		StartHideHealthbarTimer();
+	}
 }
 
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
