@@ -94,7 +94,8 @@ private:
 
 protected:
 	virtual void BeginPlay() override;
-
+	virtual void Attack() override;
+	virtual void PlayAttackMontage(int32 AttackTypeValue) override;
 	virtual void Die() override;
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);

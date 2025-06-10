@@ -67,6 +67,44 @@ void AEnemy::BeginPlay()
 	}
 }
 
+void AEnemy::Attack()
+{
+	Super::Attack();
+	int32 AttackIndex = FMath::RandRange(0, 2);
+	PlayAttackMontage(AttackIndex);
+}
+
+void AEnemy::PlayAttackMontage(int32 AttackTypeValue)
+{
+	Super::PlayAttackMontage(4);
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if(AnimInstance && AttackMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%i"), AttackTypeValue);
+		AnimInstance->Montage_Play(AttackMontage);
+		FName SectionName = FName();
+
+		switch (AttackTypeValue)
+		{
+		case 0:
+			SectionName = FName("Attack1");
+			break;
+		case 1:
+			SectionName = FName("Attack2");
+			break;
+		case 2:
+			SectionName = FName("Attack3");
+			break;
+		default:
+			UE_LOG(LogTemp, Error, TEXT("Default Case reached in AttackMontage Selection"));
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+
+
 void AEnemy::Die()
 {
 	if (!bIsAlive) return;
@@ -131,7 +169,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 	
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(15.f);
+	MoveRequest.SetAcceptanceRadius(70.f);
 	EnemyController->MoveTo(MoveRequest);
 }
 
@@ -227,6 +265,7 @@ void AEnemy::CheckCombatTarget()
 		// Inside AttackRange, Attack Character
 		EnemyState = EEnemyState::EEA_Attacking;
 		// TODO: ATTACK MONTAGE
+		Attack();
 		UE_LOG(LogTemp, Warning, TEXT("Attack!"))
 	}
 }
