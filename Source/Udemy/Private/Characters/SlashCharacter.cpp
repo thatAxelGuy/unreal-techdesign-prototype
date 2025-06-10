@@ -11,6 +11,7 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Components/BoxComponent.h"
+#include "Components/AttributeComponent.h"
 
 // Sets default values
 ASlashCharacter::ASlashCharacter()
@@ -79,14 +80,6 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 	}
 }
 
-void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	if(EquippedWeapon && EquippedWeapon->GetWeaponBox())
-	{
-		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
-		EquippedWeapon->ActorsToIgnore.Empty();
-	}
-}
 void ASlashCharacter::Move(const FInputActionValue &Value)
 {
 	if (ActionState != EActionState::EAS_Unoccupied) return;
@@ -164,6 +157,7 @@ void ASlashCharacter::Sprint()
 	}
 	
 	SetCharacterStateForEquippedWeapon();
+	
 }
 
 void ASlashCharacter::Attack()
@@ -201,6 +195,11 @@ bool ASlashCharacter::CanAttack()
 	return ActionState == EActionState::EAS_Unoccupied &&
 		   CharacterState != ECharacterState::ECS_Unequipped;
 }
+
+void ASlashCharacter::Die()
+{
+}
+
 
 bool ASlashCharacter::CanDisarm() 
 {
@@ -303,6 +302,7 @@ void ASlashCharacter::PlayAttackMontage(int32 AttackTypeValue)
 		}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+
 }
 
 void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
