@@ -27,6 +27,8 @@ In this project I extended the base tutorial and built a prototype featuring:
 Gameplay Preview | Editor Preview
 :-------------------------:|:-------------------------:
 ![Gameplay Demo](Docs/WeaponPickup.gif) | ![Editor Screenshot](Docs/AIComponents.png)
+:-------------------------:|:-------------------------:
+![Gameplay Demo](Docs/LootPickup.gif) | ![Editor Screenshot](Docs/BreakableObjects.png)
 
 *(GIFs and screenshots captured from the Azure DevOps project build)*
 
