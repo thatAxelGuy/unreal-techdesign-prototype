@@ -9,6 +9,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interfaces/HitInterface.h"
 #include "NiagaraComponent.h"
+#include "Data/WeaponData.h"
 
 AWeapon::AWeapon()
 {
@@ -24,11 +25,37 @@ AWeapon::AWeapon()
     BoxTraceEnd->SetupAttachment(GetRootComponent());
 }
 
+void AWeapon::OnConstruction(const FTransform& Transform)
+{
+    Super::OnConstruction(Transform);
+    AdjustHeightAboveGround();
+}
+
+void AWeapon::AdjustHeightAboveGround()
+{
+    FVector Start = GetActorLocation();
+    FVector End = Start - FVector((0, 0, 10000)); // Downward Trace
+
+    FHitResult HitResult;
+    FCollisionQueryParams TraceParams;
+    TraceParams.AddIgnoredActor(this);
+
+    if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, TraceParams))
+    {
+        FVector NewLocation = GetActorLocation();
+        NewLocation.Z = HitResult.ImpactPoint.Z + HeightAboveGround;
+        SetActorLocation(NewLocation);
+    }
+}
+
 void AWeapon::BeginPlay()
 {
     Super::BeginPlay();
 
     WeaponBox->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnBoxOverlap);
+    InitializeFromDataTable();
+
+    AdjustHeightAboveGround();
 }
 
 void AWeapon::Equip(USceneComponent *InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator)
@@ -55,6 +82,51 @@ void AWeapon::Equip(USceneComponent *InParent, FName InSocketName, AActor* NewOw
     {
         EmbersEffect->Deactivate();
     }
+}
+
+void AWeapon::DropWeapon()
+{
+    DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+    SetOwner(nullptr);
+    SetInstigator(nullptr);
+    ItemState = EItemState::EIS_Hovering;
+
+    SetActorRotation(FRotator::ZeroRotator);
+
+    if (Sphere)
+    {
+        Sphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    }
+
+    if (EmbersEffect)
+    {
+        EmbersEffect->Activate();
+    }
+
+    AdjustHeightAboveGround();
+}
+
+void AWeapon::InitializeFromDataTable()
+{
+    if (!WeaponDataTable) return;
+
+    static const FString ContextString(TEXT("Weapon Data"));
+    FWeaponData* WeaponData = WeaponDataTable->FindRow<FWeaponData>(WeaponID, ContextString);
+    UE_LOG(LogTemp, Log, TEXT("Weapon Data Accessed"));
+    if (WeaponData)
+    {
+        Damage = WeaponData->BaseDamage;
+        DamageModifierTwoHanded = WeaponData->TwoHandedDamageModifier;
+        /*StrengthScaling = ScalingGrades[WeaponData->StrengthGrade];
+        AgilityScaling = ScalingGrades[WeaponData->AgilityGrade];*/
+
+        UE_LOG(LogTemp, Log, TEXT("Weapon Initialized: %s"), *WeaponData->WeaponName.ToString());
+    }
+}
+
+void AWeapon::SetWeaponStanceTwoHanded(bool isTwoHanded)
+{
+    bIsWeaponHeldTwoHanded = isTwoHanded;
 }
 
 void AWeapon::AttachMeshToSocket(USceneComponent *InParent, const FName &InSocketName)
@@ -98,11 +170,12 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent *OverlappedComponent, AActor *Oth
         BoxHit,
         true
     );
+
     if(BoxHit.GetActor())
     {
         UGameplayStatics::ApplyDamage(
             BoxHit.GetActor(),
-            Damage,
+            CalculateDamage(),
             GetInstigator()->GetController(),
             this,
             UDamageType::StaticClass()
@@ -118,6 +191,19 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent *OverlappedComponent, AActor *Oth
         CreateFields(BoxHit.ImpactPoint);
 
        
+    }
+    
+}
+
+float AWeapon::CalculateDamage()
+{
+    if (bIsWeaponHeldTwoHanded)
+    {
+        return Damage * DamageModifierTwoHanded;
+    }
+    else 
+    {
+        return Damage;
     }
     
 }

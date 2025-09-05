@@ -15,6 +15,7 @@
     }
 
 #define DRAW_ARROW(StartLocation, EndLocation) if(GetWorld()) DrawDebugDirectionalArrow(GetWorld(), StartLocation, EndLocation, 120.f, FColor::Magenta, true, -1.f, 0, 5.f);
+#define DRAW_ARROW_SingleFrame(StartLocation,EndLocation) if (GetWorld()) DrawDebugDirectionalArrow(GetWorld(), StartLocation, EndLocation, 120.f, FColor::Red, false, -1.f, 0, 3.f);
 #define DRAW_3D_GIZMO(StartLocation, ForwardVector, RightVector, UpVector, Length) if(GetWorld()) \
 {\
     DrawDebugDirectionalArrow(GetWorld(), StartLocation, StartLocation + ForwardVector * Length, 120.f, FColor::Red, false, -1.f, 0, 5.f);\

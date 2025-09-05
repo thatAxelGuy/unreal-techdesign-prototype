@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
 #include "SlashCharacter.generated.h"
@@ -14,10 +14,9 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGroomComponent;
 class AItem;
-class AWeapon;
 
 UCLASS()
-class UDEMY_API ASlashCharacter : public ACharacter
+class UDEMY_API ASlashCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -26,8 +25,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -62,6 +59,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* HeavyAttackAction;
 
+	// Boolean to track Character Stance
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character State")
+	bool bIsTwoHandedStance = false;
+
 	/** 
 	 * Callbacks for Input
 	*/
@@ -70,7 +71,7 @@ protected:
 	void EKeyPressed();
 	void Dodge();
 	void Sprint();
-	void Attack();
+	virtual void Attack() override;
 	void AttackHorizontal();
 	void HeavyAttack();
 
@@ -78,11 +79,11 @@ protected:
 	 * Play Montage Functions 
 	 */
 
-	void PlayAttackMontage(int32 AttackTypeValue);
-	UFUNCTION(BlueprintCallable)
-	void AttackEnd();
-	bool CanAttack();
+	virtual void PlayAttackMontage(int32 AttackTypeValue) override;
+	virtual void AttackEnd() override;
 
+	virtual bool CanAttack() override;
+	virtual void Die() override;
 	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
 
@@ -123,18 +124,15 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
-	
-	UPROPERTY(VisibleAnywhere, Category = Weapon)
-	AWeapon* EquippedWeapon;
 
-	/**
-	 * Animation Montages
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* AttackMontage;
+	
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
+
+	void ToggleTwoHandedStance();
+
+	void SetCharacterStateForEquippedWeapon();
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item){OverlappingItem = Item;}

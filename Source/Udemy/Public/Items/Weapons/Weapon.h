@@ -20,10 +20,16 @@ public:
     AWeapon();
     void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
     void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
+    void DropWeapon();
+    void InitializeFromDataTable();
+    void SetWeaponStanceTwoHanded(bool isTwoHanded);
+
 
     TArray<AActor*>ActorsToIgnore;
 protected:
     virtual void BeginPlay() override;
+    virtual void OnConstruction(const FTransform& Transform) override; // Override placement of weapon items height offset
+    void AdjustHeightAboveGround();
     virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
     virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 
@@ -48,6 +54,21 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Weapon Properties")
     float Damage = 20.f;
+
+    UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+    float DamageModifierTwoHanded = 1.f;
+
+    UPROPERTY(EditAnywhere, Category = "Data")
+    UDataTable* WeaponDataTable;
+
+    UPROPERTY(EditAnywhere, Category = "Data")
+    FName WeaponID;
+
+    bool bIsWeaponHeldTwoHanded = false;
+    float CalculateDamage();
+
+    UPROPERTY(EditAnywhere, Category="Height Adjustment")
+    float HeightAboveGround = 69.f;
 
 
 public:

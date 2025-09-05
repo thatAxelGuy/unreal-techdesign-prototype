@@ -9,18 +9,14 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine",
-				"UMG"
+				"Engine"
 			]
 		}
 	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",
-			"Enabled": true,
-			"TargetAllowList": [
-				"Editor"
-			]
+			"Enabled": true
 		},
 		{
 			"Name": "HairStrands",
@@ -28,6 +24,10 @@
 		},
 		{
 			"Name": "AlembicHairImporter",
+			"Enabled": true
+		},
+		{
+			"Name": "VisualStudioTools",
 			"Enabled": true
 		}
 	]

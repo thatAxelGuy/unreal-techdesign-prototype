@@ -11,6 +11,7 @@
 #include "Items/Item.h"
 #include "Items/Weapons/Weapon.h"
 #include "Components/BoxComponent.h"
+#include "Components/AttributeComponent.h"
 
 // Sets default values
 ASlashCharacter::ASlashCharacter()
@@ -47,6 +48,7 @@ ASlashCharacter::ASlashCharacter()
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	Tags.Add(FName("SlashCharacter"));
 
 	if (APlayerController *PlayerController = Cast<APlayerController>(GetController()))
 	{
@@ -70,7 +72,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump);
 		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed);
-		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &ASlashCharacter::Dodge);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASlashCharacter::Sprint);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 		EnhancedInputComponent->BindAction(AttackHorizontalAction, ETriggerEvent::Triggered, this, &ASlashCharacter::AttackHorizontal);
@@ -78,14 +80,6 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 	}
 }
 
-void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	if(EquippedWeapon && EquippedWeapon->GetWeaponBox())
-	{
-		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
-		EquippedWeapon->ActorsToIgnore.Empty();
-	}
-}
 void ASlashCharacter::Move(const FInputActionValue &Value)
 {
 	if (ActionState != EActionState::EAS_Unoccupied) return;
@@ -117,31 +111,53 @@ void ASlashCharacter::EKeyPressed()
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
-		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 		OverlappingItem = nullptr;
+		// Drop weapon if one is already equipped
+		if (EquippedWeapon){
+			EquippedWeapon->DropWeapon();
+		}
+		
 		EquippedWeapon = OverlappingWeapon;
+		// Set character state based on the stance
+		SetCharacterStateForEquippedWeapon();
 	}
 	else
 	{
 		if(CanDisarm())
 		{
 			PlayEquipMontage(FName("Unequip"));
-			CharacterState = ECharacterState::ECS_Unequipped;
 			ActionState = EActionState::EAS_EquippingWeapon;
+
+			// Update Character State to Unequipped
+			CharacterState = ECharacterState::ECS_Unequipped;
+			
 		}
 		else if(CanArm())
 		{
 			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
 			ActionState = EActionState::EAS_EquippingWeapon;
+
+			// Set character state for the currently equipped weapon
+			SetCharacterStateForEquippedWeapon();
+			
 		}
 	}
 }
 
-void ASlashCharacter::Dodge() {}
+void ASlashCharacter::Dodge() { ToggleTwoHandedStance(); }
 
 void ASlashCharacter::Sprint()
 {
+	if (CharacterState == ECharacterState::ECS_Unequipped || ActionState != EActionState::EAS_Unoccupied)  return;
+	if(EquippedWeapon)
+	{
+		EquippedWeapon->DropWeapon();
+		EquippedWeapon = nullptr;
+
+	}
+	
+	SetCharacterStateForEquippedWeapon();
+	
 }
 
 void ASlashCharacter::Attack()
@@ -180,6 +196,11 @@ bool ASlashCharacter::CanAttack()
 		   CharacterState != ECharacterState::ECS_Unequipped;
 }
 
+void ASlashCharacter::Die()
+{
+}
+
+
 bool ASlashCharacter::CanDisarm() 
 {
     return ActionState == EActionState::EAS_Unoccupied &&
@@ -213,6 +234,44 @@ void ASlashCharacter::FinishEquipping()
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
+void ASlashCharacter::ToggleTwoHandedStance()
+{
+	if (CharacterState == ECharacterState::ECS_Unequipped) return;
+
+	// Toggle between one-handed and two-handed stance
+	bIsTwoHandedStance = !bIsTwoHandedStance;
+
+	EquippedWeapon->SetWeaponStanceTwoHanded(bIsTwoHandedStance);
+
+	// Update the character state for the equipped weapon
+	SetCharacterStateForEquippedWeapon();
+
+	UE_LOG(LogTemp, Log, TEXT("Toggled stance to %s"),
+		bIsTwoHandedStance ? TEXT("Two-Handed") : TEXT("One-Handed"));
+}
+
+void ASlashCharacter::SetCharacterStateForEquippedWeapon()
+{
+
+	if (!EquippedWeapon)
+	{
+		CharacterState = ECharacterState::ECS_Unequipped;
+		return;
+	}
+
+	// Update character state based on the current stance
+	if (bIsTwoHandedStance)
+	{
+		CharacterState = ECharacterState::ECS_EquippedTwoHandedWeapon;
+		UE_LOG(LogTemp, Log, TEXT("Equipped weapon in Two-Handed Stance."));
+	}
+	else
+	{
+		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		UE_LOG(LogTemp, Log, TEXT("Equipped weapon in One-Handed Stance."));
+	}
+}
+
 void ASlashCharacter::PlayAttackMontage(int32 AttackTypeValue)
 {
 	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
@@ -220,8 +279,9 @@ void ASlashCharacter::PlayAttackMontage(int32 AttackTypeValue)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
 		//const int32 Selection = FMath::RandRange(0, 1);
-		const int32 Selection = AttackTypeValue;
+		const int32 Selection = bIsTwoHandedStance ? 3 : AttackTypeValue;
 		FName SectionName = FName();
+		
 		switch (Selection)
 		{
 		case 0:
@@ -233,11 +293,16 @@ void ASlashCharacter::PlayAttackMontage(int32 AttackTypeValue)
 		case 2:
 			SectionName = FName("Attack3");
 			break;
+		case 3:
+			SectionName = FName("Attack4");
+			break;
 		default:
+			UE_LOG(LogTemp, Error, TEXT("Default Case reached in AttackMontage Selection"));
 			break;
 		}
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
+
 }
 
 void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
