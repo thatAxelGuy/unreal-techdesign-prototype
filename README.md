@@ -25,10 +25,12 @@ In this project I extended the base tutorial and built a prototype featuring:
 ## 🖼️ Media
 
 Gameplay Examples:
+
 ![Gameplay Demo](Docs/WeaponPickup.gif) |![Gameplay Demo](Docs/LootPickup.gif)
 ![Gameplay Demo](Docs/EnemyAttackOnDamage.gif) |![Gameplay Demo](Docs/EnemyFollowLoseInterest.gif)
 ![Gameplay Demo](Docs/DestructibleObjects.gif)
 Editor Screenshots:
+
 ![Editor Screenshot](Docs/AIComponents.png) |![Editor Screenshot](Docs/BreakableObjects.png)
 ![Editor Screenshot](Docs/WeaponBP_ObjectDestruction.png) |![Editor Screenshot](Docs/WeaponPickups.png)
 
