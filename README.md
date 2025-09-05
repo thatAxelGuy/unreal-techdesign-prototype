@@ -4,7 +4,7 @@
 ![Cover](Docs/Cover.png)
 
 This repository contains the **C++ source code and configuration** from my work in the  
-📚 *Unreal Engine 5 C++ The Ultimate Game Developer Course (Udemy)*.
+📚 [Unreal Engine 5 C++ The Ultimate Game Developer Course](https://www.udemy.com/course/unreal-engine-5-the-ultimate-game-developer-course/) (Udemy).  
 
 I use GitHub to **showcase code and design work**, while the **full project including assets**  
 (animations, materials, large files) is hosted privately on **Azure DevOps**, where I also experimented  
