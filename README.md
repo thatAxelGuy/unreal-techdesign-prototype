@@ -1,54 +1,70 @@
-Repo Structure
+# Unreal Engine 5 – Third Person Action Prototype  
+*(Udemy Tutorial Project Showcase)*
 
-Repository structure is fixed, and it only has a few toplevel directories. Every other directory or file is ignored.
+This repository contains the **C++ source code and configuration** from my work in the  
+📚 *Unreal Engine 5 C++ The Ultimate Game Developer Course (Udemy)*.  
 
-/Source
-/Config
-/Plugins
-/Content
-/RawContent
-git-lfs management rules are mostly defined for file types, and not paths, however there can entire paths marked to be managed by git-lfs. Without a special note, expect only type-based rules apply to a directory.
+I use GitHub to **showcase code and design work**, while the **full project including assets**  
+(animations, materials, large files) is hosted privately on **Azure DevOps**, where I also experimented  
+with large file handling and DevOps workflows.
 
-/Source
+---
 
-C++ source code is stored under the /Source path. As with most other directories, this directory is managed by standard git (and not git-lfs). That means no blobs. Do not put here any .dlls, .exes, .zips and other binaries. Only text files are allowed. Generated text files can reside in the local /Source dir, but should be ignored by git with additional entries in .gitignore.
+## 🎮 Features Implemented
+In this project I extended the base tutorial and built a prototype featuring:
 
-/Config
+- ✅ **Custom Third Person Character** – animations, movement, attacks  
+- 🔄 **Weapon System** – pick up & carry weapons, switch between armed/unarmed states  
+- 🪓 **Destructible Objects** – props that react to attacks  
+- 🎁 **Loot Pickups** – items that can be collected during play  
+- 🤖 **AI Enemies** – full animation set, hit reactions, combat logic  
+- 🧭 **AI Pathing** – navigation mesh integration, enemies track & follow the player  
 
-Engine and game config files.
+---
 
-/Plugins
+## 🖼️ Media
 
-Game plugins. Every plugin lives in a subdirectory of the /Plugins dir. A plugin internal directory structure is not strictly documented, so there are no assumptions on how a plugin is structured. It may be useful to use git submodules to manage plugins in a more robust manner. It is expected that each plugin will have it's own .gitignore file in it's subdirectory, as well other required specific git tweaks.
+Gameplay Preview | Editor Preview
+:-------------------------:|:-------------------------:
+![Gameplay Demo](Docs/WeaponPickup.gif) | ![Editor Screenshot](Docs/AIComponents.png)
 
-/Content
+*(GIFs and screenshots captured from the Azure DevOps project build)*
 
-Game assets in Unreal Engine formats, .uasset and .umap. Only those two file types are allowed, everything else is ignored.
+---
 
-/RawContent
+## ⚙️ Tech Stack
+- **Unreal Engine 5 (UE5)**  
+- **C++ Gameplay Programming**  
+- Blueprints (for rapid prototyping / animation state machines)  
+- Animation Blueprints, AI Controllers, Behavior Trees  
+- Azure DevOps (full repo, large assets, pipelines)  
 
-This directory is managed entirely by git-lfs.
+---
 
-/RawContent is a directory where you store assets in their source formats, in contrast to /Content, where assets are stored in the engine format (after the import). Having an asset in a source format is useful when you're still making updates to it. It may be a good idea to also have separate repos for managing work-in-progress assets (maybe in smaller collections or even idividually).
+## 📂 Repository Structure
+This repo contains only the **code and config** relevant for learning & review:  
+Source/ → C++ gameplay classes
+Config/ → UE project settings
+Udemy.uproject
+README.md
+Docs/ → screenshots, gifs, notes
 
-How to use
 
-Set up git and git-lfs.
-Copy .gitignore and .gitattributes to your project.
-Caveats
+Excluded from GitHub (too large / generated):  
 
-Take special care when working with plugins. Plugin structure is not very well defined, so you will be able to mess the git repo up with big files if you commit them to a plugin directory.
+Content/ (large assets)
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
 
-Contributing
 
-Rules
+---
 
-This repo uses UNIX-style line endings and UTF-8. Make sure every line in a text file is ended with a newline (especially the last line in a file, git should notify you if you've lost it). This is due to how lines are defined. Feel free to search the web for more info on why to end every file with an "empty line".
+## 📜 Notes
+- This project is based on **Udemy’s UE5 C++ Ultimate Game Developer Course**.  
+- The full project, including assets, is hosted privately on **Azure DevOps** to handle large file sizes.  
+- This GitHub version focuses on **code & systems design** as part of my learning and technical portfolio.  
 
-How to contribute
+---
 
-Fork it
-Create your feature branch (git checkout -b my-new-feature)
-Commit your changes (git commit -am 'Add some feature')
-Push to the branch (git push origin my-new-feature)
-Create new Pull Request
