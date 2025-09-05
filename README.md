@@ -1,6 +1,8 @@
 # Unreal Engine 5 – Third Person Action Prototype  
 *(Udemy Tutorial Project Showcase)*
 
+![Cover](Docs/Cover.png)
+
 This repository contains the **C++ source code and configuration** from my work in the  
 📚 *Unreal Engine 5 C++ The Ultimate Game Developer Course (Udemy)*.
 
@@ -49,6 +51,10 @@ In this project I extended the base tutorial and built a prototype featuring:
 | Weapon BP – Object Destruction | Weapon Pickups Blueprint |
 |---|---|
 | ![Weapon BP – Object Destruction](Docs/WeaponBP_ObjectDestruction.png) | ![Weapon Pickups](Docs/WeaponPickups.png) |
+
+| Two-Handed Weapon Setup |
+|---|
+| ![Two-Handed Weapon](Docs/TwoHandedWeapon.png) |
 
 *(GIFs and screenshots captured from the Azure DevOps project build.)*
 
