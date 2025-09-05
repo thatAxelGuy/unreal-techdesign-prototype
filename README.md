@@ -2,7 +2,7 @@
 *(Udemy Tutorial Project Showcase)*
 
 This repository contains the **C++ source code and configuration** from my work in the  
-📚 *Unreal Engine 5 C++ The Ultimate Game Developer Course (Udemy)*.  
+📚 *Unreal Engine 5 C++ The Ultimate Game Developer Course (Udemy)*.
 
 I use GitHub to **showcase code and design work**, while the **full project including assets**  
 (animations, materials, large files) is hosted privately on **Azure DevOps**, where I also experimented  
@@ -18,23 +18,39 @@ In this project I extended the base tutorial and built a prototype featuring:
 - 🪓 **Destructible Objects** – props that react to attacks  
 - 🎁 **Loot Pickups** – items that can be collected during play  
 - 🤖 **AI Enemies** – full animation set, hit reactions, combat logic  
-- 🧭 **AI Pathing** – navigation mesh integration, enemies track & follow the player  
+- 🧭 **AI Pathing** – navigation mesh integration, enemies track & follow the player
 
 ---
 
 ## 🖼️ Media
 
-Gameplay Examples:
+### Gameplay Examples
 
-![Gameplay Demo](Docs/WeaponPickup.gif) |![Gameplay Demo](Docs/LootPickup.gif)
-![Gameplay Demo](Docs/EnemyAttackOnDamage.gif) |![Gameplay Demo](Docs/EnemyFollowLoseInterest.gif)
-![Gameplay Demo](Docs/DestructibleObjects.gif)
-Editor Screenshots:
+<!-- Variante A: sauberes 2-Spalten-Grid per Markdown-Tabelle -->
+| Weapon Pickup | Loot Pickup |
+|---|---|
+| ![Weapon Pickup](Docs/WeaponPickup.gif) | ![Loot Pickup](Docs/LootPickup.gif) |
 
-![Editor Screenshot](Docs/AIComponents.png) |![Editor Screenshot](Docs/BreakableObjects.png)
-![Editor Screenshot](Docs/WeaponBP_ObjectDestruction.png) |![Editor Screenshot](Docs/WeaponPickups.png)
+| Enemy Hit Reaction | Enemy Follow / Lose Interest |
+|---|---|
+| ![Enemy Hit Reaction](Docs/EnemyAttackOnDamage.gif) | ![Enemy Follow / Lose Interest](Docs/EnemyFollowLoseInterest.gif) |
 
-*(GIFs and screenshots captured from the Azure DevOps project build)*
+| Destructible Objects |
+|---|
+| ![Destructible Objects](Docs/DestructibleObjects.gif) |
+
+
+### Editor Screenshots
+
+| AI Components | Breakable Objects |
+|---|---|
+| ![AI Components](Docs/AIComponents.png) | ![Breakable Objects](Docs/BreakableObjects.png) |
+
+| Weapon BP – Object Destruction | Weapon Pickups Blueprint |
+|---|---|
+| ![Weapon BP – Object Destruction](Docs/WeaponBP_ObjectDestruction.png) | ![Weapon Pickups](Docs/WeaponPickups.png) |
+
+*(GIFs and screenshots captured from the Azure DevOps project build.)*
 
 ---
 
@@ -43,34 +59,16 @@ Editor Screenshots:
 - **C++ Gameplay Programming**  
 - Blueprints (for rapid prototyping / animation state machines)  
 - Animation Blueprints, AI Controllers, Behavior Trees  
-- Azure DevOps (full repo, large assets, pipelines)  
+- Azure DevOps (full repo, large assets, pipelines)
 
 ---
 
 ## 📂 Repository Structure
-This repo contains only the **code and config** relevant for learning & review:  
-Source/ → C++ gameplay classes
-Config/ → UE project settings
+This repo contains only the **code and config** relevant for learning & review:
+
+```text
+Source/            → C++ gameplay classes
+Config/            → UE project settings
 Udemy.uproject
 README.md
-Docs/ → screenshots, gifs, notes
-
-
-Excluded from GitHub (too large / generated):  
-
-Content/ (large assets)
-Binaries/
-Intermediate/
-DerivedDataCache/
-Saved/
-
-
----
-
-## 📜 Notes
-- This project is based on **Udemy’s UE5 C++ Ultimate Game Developer Course**.  
-- The full project, including assets, is hosted privately on **Azure DevOps** to handle large file sizes.  
-- This GitHub version focuses on **code & systems design** as part of my learning and technical portfolio.  
-
----
-
+Docs/              → screenshots, gifs, notes
